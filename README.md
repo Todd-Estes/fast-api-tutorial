@@ -1,3 +1,9 @@
+FastAPI Tutorial
+-
+
+- Completed walk-through exercise of FastApi's User Guide Tutorial https://fastapi.tiangolo.com/tutorial/
+
+- Contains assorted notes and comments explaining different FastAPI features and patterns
 
 
 With FastAPI, by using short, intuitive and standard Python type declarations, you get:
