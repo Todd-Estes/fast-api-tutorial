@@ -1,7 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from pydantic import BaseModel
 from enum import Enum
-from typing import Any
+from typing import Annotated, Any, Dict
 
 class Item(BaseModel):
   name: str
@@ -21,7 +21,7 @@ async def root():
   return {"message": "Hello World"}
 
 '''
-  Path Parameters
+  PATH PARAMETERS
 '''
 
 @app.get("/items/{item_id}")
@@ -47,7 +47,7 @@ async def read_file(your_file_path_param: str) -> dict[str, str]:
   return {"file_path": your_file_path_param}
 
 '''
-  Query Parameters
+  QUERY PARAMETERS
 
   You can declare multiple path parameters and query parameters at the same time,
   FastAPI knows which is which.
@@ -81,7 +81,39 @@ async def read_user_item(
     return item
 
 '''
-  Request Body
+  By having Query(max_length=50) inside of Annotated, we are telling FastAPI that we want it
+  to have additional validation for this value, we want it to have maximum 50 characters.
+
+  See Annotated docs for more info
+
+  You can declare additional validations and metadata for your parameters.
+  See FastApi docs https://fastapi.tiangolo.com/tutorial/query-params-str-validations
+  Generic validations and metadata:
+
+  alias
+  title
+  description
+  deprecated
+  Validations specific for strings:
+
+  min_length
+  max_length
+  pattern
+'''
+
+@app.get("/items/")
+async def read_items(q: Annotated[str | None, Query(max_length=50)] = None):
+   # required value (see below,  don't declare a default value) 
+   # async def read_items(q: Annotated[str, Query(min_length=3)]):
+   # this means the same thig - ellipses explicitly indicate required query param
+   # async def read_items(q: Annotated[str, Query(min_length=3)] = ...):
+   results: Dict[str, Any ] = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+   if q:
+      results.update({"q": q})
+   return results
+
+'''
+  REQUEST BODY
 
   You can declare path parameters and request body at the same time.
 
@@ -96,9 +128,9 @@ async def create_item(item: Item) -> dict[str, Any]:
         item_dict.update({"price_with_tax": price_with_tax})
     return item_dict
 
-@app.put("/items/{item_id}")
-async def update_item(item_id: int, item: Item) -> dict[str, Any]:
-    return {"item_id": item_id, **item.model_dump()} #unpack (spread) item key/value pairs into dict
+# @app.put("/items/{item_id}")
+# async def update_item(item_id: int, item: Item) -> dict[str, Any]:
+#     return {"item_id": item_id, **item.model_dump()} #unpack (spread) item key/value pairs into dict
 
 '''
   You can also declare body, path and query parameters, all at the same time.
